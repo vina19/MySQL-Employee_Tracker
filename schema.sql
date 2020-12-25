@@ -9,11 +9,18 @@ USE employees_db
 
 /* Department Table */
 CREATE TABLE department (
-    id INT AUTO_INCREMENT NOT NULL,
+    id INT NOT NULL AUTO_INCREMENT,
     name VARCHAR(30),
     PRIMARY KEY (id) 
 );
 
 /* Role Table */
+CREATE TABLE role (
+    id INT NOT NULL AUTO_INCREMENT,
+    title VARCHAR(30),
+    salary DECIMAL(10,2),
+    department_id INT,
+    PRIMARY KEY (id)
+);
 
 /* Employee Table */
