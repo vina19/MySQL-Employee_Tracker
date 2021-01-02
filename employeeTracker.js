@@ -2,6 +2,7 @@
 const inquirer = require("inquirer");
 const mysql = require("mysql");
 const logo = require("asciiart-logo");
+const { allowedNodeEnvironmentFlags } = require("process");
 
 // Create the connection information for the sql database
 const connection = mysql.createConnection({
@@ -23,7 +24,6 @@ connection.connect(function(err) {
 });
 
 // Added a logo employee manager
-// Doom
 console.log(
     logo({
         name: 'Employee Manager',
@@ -33,6 +33,7 @@ console.log(
         margin: 3
     }).render());
 
+// Prompt for main menu
 function runEmployeeTracker() {
     inquirer
         .prompt({
@@ -57,6 +58,52 @@ function runEmployeeTracker() {
                 'Exit'
             ]
         }).then(function(answer) {
-        
+            switch(answer.options) {
+                case 'View All Employees':
+                    viewEmployees();
+                    break;
+                case 'View All Employees By Department':
+                    viewEmployeesByDepartment();
+                    break;
+                case 'View All Employees By Manager':
+                    viewEmployeesByManager();
+                    break;
+                case 'Add Employee':
+                    addEmployee();
+                    break;
+                case 'Remove Employee':
+                    removeEmployee();
+                    break;
+                case 'Update Employee Role':
+                    updateEmployeeRole();
+                    break;
+                case 'Update Employee Manager':
+                    updateEmployeeManager();
+                    break;
+                case 'View All Roles':
+                    viewRoles();
+                    break;
+                case 'Add Role':
+                    addRole();
+                    break;
+                case 'Remove Role':
+                    removeRole();
+                    break;
+                case 'View All Departments':
+                    viewDepartments();
+                    break;
+                case 'View Total Utilized Department Budget':
+                    viewDepartmentBudget();
+                    break;
+                case 'Add Department':
+                    addDepartment();
+                    break;
+                case 'Remove Department':
+                    removeDepartment();
+                    break;
+                case 'Exit':
+                    connection.end();
+                    break;
+            }
         });
 };
