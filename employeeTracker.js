@@ -19,6 +19,7 @@ const connection = mysql.createConnection({
 // or else run the function.
 connection.connect(function(err) {
     if (err) throw err;
+    runEmployeeTracker();
 });
 
 // Added a logo employee manager
@@ -31,3 +32,31 @@ console.log(
         padding: 2,
         margin: 3
     }).render());
+
+function runEmployeeTracker() {
+    inquirer
+        .prompt({
+            name: "options",
+            type: "list",
+            message: "What would you like to do?",
+            choices: [
+                'View All Employees',
+                'View All Employees By Department',
+                'View All Employees By Manager',
+                'Add Employee',
+                'Remove Employee',
+                'Update Employee Role',
+                'Update Employee Manager',
+                'View All Roles',
+                'Add Role',
+                'Remove Role',
+                'View All Departments',
+                'View Department Budget',
+                'Add Department',
+                'Remove Department',
+                'Exit'
+            ]
+        }).then(function(answer) {
+        
+        });
+};
