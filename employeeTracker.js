@@ -1,6 +1,7 @@
 // Dependencies
 const inquirer = require("inquirer");
 const mysql = require("mysql");
+const logo = require("asciiart-logo");
 
 // Create the connection information for the sql database
 const connection = mysql.createConnection({
@@ -19,3 +20,14 @@ const connection = mysql.createConnection({
 connection.connect(function(err) {
     if (err) throw err;
 });
+
+// Added a logo employee manager
+// Doom
+console.log(
+    logo({
+        name: 'Employee Manager',
+        font: 'Delta Corps Priest 1',
+        lineChars: 4,
+        padding: 2,
+        margin: 3
+    }).render());
