@@ -104,6 +104,62 @@ function runEmployeeTracker() {
                 case 'Exit':
                     connection.end();
                     break;
-            }
+            };
         });
+};
+
+function viewEmployees() {
+
+};
+
+function viewEmployeesByDepartment() {
+
+};
+
+function viewEmployeesByManager() {
+
+};
+
+function addEmployee() {
+
+};
+
+function removeEmployee() {
+
+};
+
+function updateEmployeeRole() {
+
+};
+
+function updateEmployeeManager() {
+
+};
+
+function viewRoles() {
+
+};
+
+function addRole() {
+
+};
+
+function removeRole() {
+
+};
+
+function viewDepartments() {
+
+};
+
+function viewDepartmentBudget() {
+
+};
+
+function addDepartment() {
+
+};
+
+function removeDepartment() {
+
 };
