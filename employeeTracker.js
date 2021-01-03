@@ -57,7 +57,7 @@ function runEmployeeTracker() {
                 'Remove Department',
                 'Exit'
             ]
-        }).then(function(answer) {
+        }).then((answer) => {
 
             // Condition for each options that the user choose.
             switch(answer.options) {
@@ -110,19 +110,45 @@ function runEmployeeTracker() {
         });
 };
 
-// Display all the employees data
+// Display all the employees
 function viewEmployees() {
 
-    let query = "SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary, CONCAT(m.first_name, ' ', m.last_name) AS manager FROM employee INNER JOIN role ON role.id = employee.role_id INNER JOIN department ON department.id = role.department_id LEFT JOIN employee m ON employee.manager_id = m.id";
-    connection.query(query, function(err, res) {
+    let query = "SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary, CONCAT(m.first_name, ' ', m.last_name) AS manager FROM employee INNER JOIN role ON role.id = employee.role_id INNER JOIN department ON department.id = role.department_id LEFT JOIN employee m ON employee.manager_id = m.id ORDER BY employee.id";
+    connection.query(query, (err, res) => {
         if (err) return err;
+
+        // Using console.table() to display the data in table format.
         console.table(res);
+
+        // run the main main again.
         runEmployeeTracker();
     });
 };
 
+// Display all the employees by departments
+// by asking the user which department they want to choose and then based on the user answer
+// display the employee info from the chosen department.
 function viewEmployeesByDepartment() {
 
+    inquirer
+        .prompt({
+            name: "department",
+            type: "list",
+            message: "Please choose which department to display: ",
+            choices: [
+                "Sales",
+                "Engineering",
+                "Finance",
+                "Legal"
+            ]
+        }).then((answer) => {
+            let query = `SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary, CONCAT(m.first_name, ' ', m.last_name) AS manager FROM employee INNER JOIN role ON role.id = employee.role_id INNER JOIN department ON department.id = role.department_id LEFT JOIN employee m ON employee.manager_id = m.id WHERE department.name = '${answer.department}' ORDER BY employee.id`;
+            connection.query(query, (err, res) => {
+                if (err) return err;
+                console.table(res);
+                runEmployeeTracker();
+            });
+        });
 };
 
 function viewEmployeesByManager() {
