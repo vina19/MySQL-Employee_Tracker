@@ -21,13 +21,13 @@ INSERT INTO role (title, salary, department_id)
 /* Employee - set the role_id based on the role id and manager_id based on the employee id. */
 INSERT INTO employee (first_name, last_name, role_id, manager_id)
     VALUES ("John", "Doe", 1, 3),
-           ("Mike", "Chan", 1, 1),
-           ("Ashley", "Rodriguez", 2, null),
-           ("Kevin", "Tupik", 2, 3),
-           ("Malia", "Brown", 3, null),
-           ("Sarah", "Lourd", 4, null),
-           ("Tom", "Allen", 4, 6),
-           ("Christian", "Eckenrode", 2, 2);
+           ("Mike", "Chan", 2, 1),
+           ("Ashley", "Rodriguez", 3, null),
+           ("Kevin", "Tupik", 4, 3),
+           ("Malia", "Brown", 5, null),
+           ("Sarah", "Lourd", 6, null),
+           ("Tom", "Allen", 7, 6),
+           ("Christian", "Eckenrode", 3, 2);
            
 SELECT * FROM department;
 SELECT * FROM employee;
