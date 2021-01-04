@@ -242,14 +242,52 @@ function addEmployee() {
             },
         ]).then((answer) => {
 
-            // Insert the needed data to add a new employee to the database
-            let query = `INSERT INTO employee (first_name, last_name, role_id, manager_id) 
-                        VALUES ("${answer.firstName}", "${answer.lastName}", (SELECT id FROM role WHERE title = "${answer.role}"), (SELECT id FROM employee WHERE CONCAT(first_name, " ", last_name) = "${answer.manager}"))`;
-            
-            connection.query(query, (err, res) => {
+            // Getting the role id number for new employee to be added to the database.
+            connection.query(`SELECT id FROM role WHERE title = "${answer.role}"`, (err, res) => {
                 if (err) throw err;
-                console.log(res.affectedRows + " new employee inserted! \n");
-                runEmployeeTracker();
+                let roleID = res[0].id;
+
+                // Getting the employee name id for new employee to be added to the database.
+                connection.query(`SELECT id FROM employee WHERE CONCAT(employee.first_name, " ", employee.last_name) = "${answer.manager}"`, (err, res) => {
+                    if (err) throw err;
+
+                    if (answer.manager === "None") {
+
+                        // Insert the needed data to add a new employee with no manager to the database
+                        connection.query(
+                            `INSERT INTO employee SET ?`,
+                            {
+                                first_name: answer.firstName,
+                                last_name: answer.lastName,
+                                role_id: roleID,
+                                manager_id: null
+                            },
+                            (err) => {
+                                if (err) throw err;
+                                console.log("New employee with no manager was createad successfully!\n");
+                                runEmployeeTracker();
+                            });
+                    }
+                    else {
+
+                        let managerID = res[0].id;
+
+                        // Insert the needed data to add a new employee with manager to the database
+                        connection.query(
+                            `INSERT INTO employee SET ?`,
+                            {
+                                first_name: answer.firstName,
+                                last_name: answer.lastName,
+                                role_id: roleID,
+                                manager_id: managerID
+                            },
+                            (err) => {
+                                if (err) throw err;
+                                console.log("New employee was createad successfully!\n");
+                                runEmployeeTracker();
+                            });
+                    };
+                });
             });
         });    
     });
