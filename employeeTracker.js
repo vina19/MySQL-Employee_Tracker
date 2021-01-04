@@ -175,7 +175,7 @@ function viewEmployeesByManager() {
 // Adding new employee to the database.
 function addEmployee() {
 
-    let query = "SELECT role.title AS title FROM role";
+    let query = "SELECT employee.id, role.title AS title, CONCAT(m.first_name, ' ', m.last_name) AS employee_name FROM employee INNER JOIN role ON role.id = employee.role_id LEFT JOIN employee m ON employee.manager_id = m.id ORDER BY employee.id";
     connection.query(query, (err, res) => {
         if (err) throw err;
         inquirer
@@ -191,21 +191,46 @@ function addEmployee() {
                 message: "Please enter new employee's last name:",
             },
             {
-                name: "roleTitle",
-                type: "list",
-                message: "Please choose which role title for this new employee:",
+                name: "role",
+                type: "rawlist",
+                message: "Please select which role title for this new employee:",
                 choices: function() {
                     let roleArray = [];
                     for (let i=0; i < res.length; i++) {
-                        roleArray.push(res[i].title)
+                        roleArray.push(res[i].title);
                     };
                     return roleArray;
                 },
             },
+            {
+                name: "manager",
+                type: "rawlist",
+                message: "Please select who is the manager for this new employee:",
+                choices: function() {
+                    let managerArray = [];
+                    for (let i=0; i < res.length; i++) {
+                        managerArray.push(res[i].employee_name);
+                    };
+                    return managerArray;
+                },
+            },
         ]).then((answer) => {
-        });
-    });    
 
+            connection.query("INSERT INTO employee SET ?",
+                {
+                    first_name: answer.firstName,
+                    last_name: answer.lastName,
+                    role_id: answer.role,
+                    manager_id: answer.manager,
+                },
+                function(err) {
+                    if (err) throw err;
+                    console.log(res.affectedRows + " new employee inserted!\n");
+                    runEmployeeTracker();
+                });
+                
+            });
+        });    
 };
 
 function removeEmployee() {
