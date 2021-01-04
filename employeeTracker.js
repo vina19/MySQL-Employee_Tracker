@@ -104,6 +104,7 @@ function runEmployeeTracker() {
                     removeDepartment();
                     break;
                 case 'Exit':
+                    console.log("\n Thank you for using my employee tracker! Have an awesome day! - VINA \n")
                     connection.end();
                     break;
             };
