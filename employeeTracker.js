@@ -185,17 +185,17 @@ function addEmployee() {
             {
                 name: "firstName",
                 type: "input",
-                message: "Please enter new employee's first name:"
+                message: "What is the employee's first name?",
             },
             {
                 name: "lastName",
                 type: "input",
-                message: "Please enter new employee's last name:",
+                message: "What is the employee's last name?",
             },
             {
                 name: "role",
-                type: "rawlist",
-                message: "Please select which role title for this new employee:",
+                type: "list",
+                message: "What is the employee's role?",
                 choices: function() {
                     let roleArray = [];
                     for (let i=0; i < res.length; i++) {
@@ -206,14 +206,14 @@ function addEmployee() {
             },
             {
                 name: "manager",
-                type: "rawlist",
-                message: "Please select who is the manager for this new employee:",
+                type: "list",
+                message: "Who is the employee's manager?",
                 choices: function() {
                     let managerArray = [];
                     for (let i=0; i < res.length; i++) {
                         managerArray.push(res[i].employee_name);
                     };
-                    return managerArray;
+                    return "None" + managerArray;
                 },
             },
         ]).then((answer) => {
