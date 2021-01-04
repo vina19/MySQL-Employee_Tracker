@@ -3,7 +3,6 @@ const inquirer = require("inquirer");
 const mysql = require("mysql");
 const logo = require("asciiart-logo");
 const asciitable = require("asciitable");
-const { ESRCH } = require("constants");
 
 // Create the connection information for the sql database
 const connection = mysql.createConnection({
@@ -13,7 +12,7 @@ const connection = mysql.createConnection({
     // Your username, if not root
     user: "root",
     // Your password
-    password: "",
+    password: "flower",
     database: "employees_db"
 });
 
@@ -214,7 +213,7 @@ function addEmployee() {
                         managerArray.push(res[i].employee_name);
                     };
                     return "None" + managerArray;
-                },
+                }
             },
         ]).then((answer) => {
 
@@ -250,7 +249,7 @@ function updateEmployeeManager() {
 // Display all the roles to the user
 function viewRoles() {
 
-    let query = "SELECT title FROM role";
+    let query = "SELECT * FROM role";
     connection.query(query, (err, res) => {
         if (err) throw err;
 
@@ -265,8 +264,47 @@ function viewRoles() {
     });
 };
 
+// Add a new role to the database
 function addRole() {
 
+    let query = "SELECT * FROM department";
+    connection.query(query, (err, res) => {
+        if (err) throw err;
+
+        inquirer
+            .prompt([
+            {
+                name: "roleTitle",
+                type: "input",
+                message: "What is the new role title?",
+            },
+            {
+                name: "salary",
+                type: "input",
+                message: "What is the new salary?",
+            },
+            {
+                name: "department",
+                type: "list",
+                choices: function() {
+                    let departmentArray = [];
+                    for (let i=0; i < res.length; i++) {
+                        departmentArray.push(res[i].name);
+                    };
+                    return departmentArray;
+                }
+            }
+            ]).then((answer) => {
+
+                // Inserting the needed data for role to the database
+                let query = `INSERT INTO role (title, salary, department_id) VALUES ("${answer.roleTitle}", "${answer.salary}", (SELECT id FROM department WHERE name = "${answer.department}"))`;
+                connection.query(query, function(err, res) {
+                    if (err) throw err;
+                    console.log(res.affectedRows + " role inserted! \n");
+                    runEmployeeTracker();
+                });
+            });
+    });
 };
 
 function removeRole() {
