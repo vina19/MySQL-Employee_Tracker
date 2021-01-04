@@ -179,6 +179,8 @@ function addEmployee() {
     let query = "SELECT employee.id, role.title AS title, CONCAT(m.first_name, ' ', m.last_name) AS employee_name FROM employee INNER JOIN role ON role.id = employee.role_id LEFT JOIN employee m ON employee.manager_id = m.id ORDER BY employee.id";
     connection.query(query, (err, res) => {
         if (err) throw err;
+
+        // Prompted the user questions about new employee info to be added in the database.
         inquirer
             .prompt([
             {
@@ -196,6 +198,8 @@ function addEmployee() {
                 type: "list",
                 message: "What is the employee's role?",
                 choices: function() {
+
+                    // Array to hold role list to be display as choices list.
                     let roleArray = [];
                     for (let i=0; i < res.length; i++) {
                         roleArray.push(res[i].title);
@@ -208,6 +212,8 @@ function addEmployee() {
                 type: "list",
                 message: "Who is the employee's manager?",
                 choices: function() {
+
+                    // Array to hold manager list to be display as choices list.
                     let managerArray = [];
                     for (let i=0; i < res.length; i++) {
                         managerArray.push(res[i].employee_name);
@@ -264,7 +270,8 @@ function addRole() {
     let query = "SELECT * FROM department";
     connection.query(query, (err, res) => {
         if (err) throw err;
-
+        
+        // Prompted the user about the needed data to be added as a new role
         inquirer
             .prompt([
             {
@@ -281,6 +288,8 @@ function addRole() {
                 name: "department",
                 type: "list",
                 choices: function() {
+                    
+                    // Array to hold department name to be display as a list options.
                     let departmentArray = [];
                     for (let i=0; i < res.length; i++) {
                         departmentArray.push(res[i].name);
@@ -305,7 +314,7 @@ function removeRole() {
 
 };
 
-// View all department to the user
+// View all department to the user from the database
 function viewDepartments() {
 
     let query = "SELECT * FROM department";
@@ -328,8 +337,27 @@ function viewDepartmentBudget() {
 
 };
 
+// Add a new department to database
 function addDepartment() {
 
+    // Prompted the user questions about new department info to be added to the database.
+    inquirer
+        .prompt([
+        {
+            name: "department",
+            type: "input",
+            message: "What is the new department?"
+        },
+        ]).then((answer) => {
+
+            // Inserting the new department to database
+            let query = `INSERT INTO department (name) VALUES ("${answer.department}")`;
+            connection.query(query, function(err, res) {
+                if (err) throw err;
+                console.log(res.affectedRows + " new department inserted!\n");
+                runEmployeeTracker();
+            });
+        });
 };
 
 function removeDepartment() {
