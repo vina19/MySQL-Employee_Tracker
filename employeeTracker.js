@@ -253,7 +253,8 @@ function addEmployee() {
 
                     if (answer.manager === "None") {
 
-                        // Insert the needed data to add a new employee with no manager to the database
+                        // Insert the needed data to add a new employee with no manager to the database.
+                        // If there is no manager then set the manager_id into null.
                         connection.query(
                             `INSERT INTO employee SET ?`,
                             {
@@ -272,7 +273,8 @@ function addEmployee() {
 
                         let managerID = res[0].id;
 
-                        // Insert the needed data to add a new employee with manager to the database
+                        // Insert the needed data to add a new employee with manager to the database.
+                        // If there is a manager then set the number id of the employee to the manager_id.
                         connection.query(
                             `INSERT INTO employee SET ?`,
                             {
@@ -293,8 +295,48 @@ function addEmployee() {
     });
 };
 
+// Delete selected employee
 function removeEmployee() {
 
+    let query = `SELECT employee.id, CONCAT(employee.first_name, " ", employee.last_name) AS employee_name 
+                FROM employee 
+                ORDER BY employee.id`;
+
+    connection.query(query, (err, res) => {
+        if (err) throw err;
+
+        inquirer
+            .prompt([
+                {
+                    name: "deleteEmployee",
+                    type: "list",
+                    message: "Which employee do you want to remove?",
+                    choices: function() {
+                        let empArray = [];
+                        for (let i=0; i < res.length; i++) {
+                            empArray.push(res[i].employee_name);
+                        };
+                        return empArray;
+                    },
+                },
+            ]).then((answer) => {
+
+                connection.query(`SELECT id FROM employee WHERE CONCAT(employee.first_name, " ", employee.last_name) = "${answer.deleteEmployee}"`, (err, res) => {
+                    if (err) throw err;
+
+                    // Employee ID
+                    let empID = res[0].id;
+
+                    // Delete selected employee from employee
+                    let query = "DELETE FROM employee WHERE ?";
+                    connection.query(query, { id: empID }, (err, res) => {
+                        if (err) throw err;
+                        console.log(`\n Employee '${answer.deleteEmployee}' was successfully deleted!\n`);
+                        runEmployeeTracker();
+                    });
+                });         
+            });
+    });
 };
 
 // Update the selected employee role
