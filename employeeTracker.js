@@ -3,6 +3,7 @@ const inquirer = require("inquirer");
 const mysql = require("mysql");
 const logo = require("asciiart-logo");
 const asciitable = require("asciitable");
+const { ESRCH } = require("constants");
 
 // Create the connection information for the sql database
 const connection = mysql.createConnection({
@@ -12,7 +13,7 @@ const connection = mysql.createConnection({
     // Your username, if not root
     user: "root",
     // Your password
-    password: "flower",
+    password: "",
     database: "employees_db"
 });
 
@@ -171,7 +172,39 @@ function viewEmployeesByManager() {
 
 };
 
+// Adding new employee to the database.
 function addEmployee() {
+
+    let query = "SELECT role.title AS title FROM role";
+    connection.query(query, (err, res) => {
+        if (err) throw err;
+        inquirer
+            .prompt([
+            {
+                name: "firstName",
+                type: "input",
+                message: "Please enter new employee's first name:"
+            },
+            {
+                name: "lastName",
+                type: "input",
+                message: "Please enter new employee's last name:",
+            },
+            {
+                name: "roleTitle",
+                type: "list",
+                message: "Please choose which role title for this new employee:",
+                choices: function() {
+                    let roleArray = [];
+                    for (let i=0; i < res.length; i++) {
+                        roleArray.push(res[i].title)
+                    };
+                    return roleArray;
+                },
+            },
+        ]).then((answer) => {
+        });
+    });    
 
 };
 
