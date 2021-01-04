@@ -310,8 +310,39 @@ function addRole() {
     });
 };
 
+// Remove role from the database
 function removeRole() {
 
+    let query = "SELECT * FROM role";
+    connection.query(query, (err, res) => {
+        if (err) throw err;
+
+        // Prompted the user question of which role they would like to delete.
+        inquirer
+            .prompt([
+                {
+                    name: "deleteRole",
+                    type: "list",
+                    message: "Which role would you like to remove?",
+                    choices: function() {
+                        let roleArray = [];
+                        for (let i=0; i < res.length; i++) {
+                            roleArray.push(res[i].title);
+                        };
+                        return roleArray;
+                    },
+                },
+            ]).then((answer) => {
+                
+                // Delete selected data from role
+                let query = "DELETE FROM role WHERE ?";
+                connection.query(query, { title: answer.deleteRole }, function(err, res) {
+                    if (err) throw err;
+                    console.log(res.affectedRows + "row successfully deleted!");
+                    runEmployeeTracker();
+                });
+            });
+    });
 };
 
 // View all department to the user from the database
