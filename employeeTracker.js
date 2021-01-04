@@ -117,12 +117,12 @@ function viewEmployees() {
     let query = "SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary, CONCAT(m.first_name, ' ', m.last_name) AS manager FROM employee INNER JOIN role ON role.id = employee.role_id INNER JOIN department ON department.id = role.department_id LEFT JOIN employee m ON employee.manager_id = m.id ORDER BY employee.id";
     connection.query(query, (err, res) => {
         if (err) return err;
-        console.log("------ALL EMPLOYEES------");
+        console.log("\n ------ALL EMPLOYEES------ \n");
 
         // Using asciitable to display the data in table format.
         let options = {
             skinny: true,
-            intersectionCharacter: "x",
+            intersectionCharacter: "*",
         };
 
         let table = asciitable(options, res);
@@ -157,10 +157,10 @@ function viewEmployeesByDepartment() {
             let query = `SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary, CONCAT(m.first_name, ' ', m.last_name) AS manager FROM employee INNER JOIN role ON role.id = employee.role_id INNER JOIN department ON department.id = role.department_id LEFT JOIN employee m ON employee.manager_id = m.id WHERE department.name = '${answer.department}' ORDER BY employee.id`;
             connection.query(query, (err, res) => {
                 if (err) return err;
-                console.log("------EMPLOYEES BY DEPARTMENT------");
+                console.log("\n ------EMPLOYEES BY DEPARTMENT------ \n");
                 let options = {
                     skinny: true,
-                    intersectionCharacter: "x",
+                    intersectionCharacter: "*",
                 };
                 let table = asciitable(options, res);
                 console.log(table);
@@ -225,6 +225,7 @@ function addEmployee() {
                 runEmployeeTracker();
             });
         });    
+    });
 };
 
 function removeEmployee() {
@@ -246,10 +247,10 @@ function viewRoles() {
     connection.query(query, (err, res) => {
         if (err) throw err;
 
-        console.log("------ROLE LIST------ \n");
+        console.log("\n ------ROLE LIST------ \n");
         let options = {
             skinny: true,
-            intersectionCharacter: "x",
+            intersectionCharacter: "*",
         };
         let table = asciitable(options, res);
         console.log(table);
@@ -304,7 +305,22 @@ function removeRole() {
 
 };
 
+// View all department to the user
 function viewDepartments() {
+
+    let query = "SELECT * FROM department";
+    connection.query(query, (err, res) => {
+        if (err) throw err;
+
+        console.log("\n------DEPARTMENT LIST------ \n");
+        let options = {
+            skinny: true,
+            intersectionCharacter: "*",
+        };
+        let table = asciitable(options, res);
+        console.log(table);
+        runEmployeeTracker();
+    });
 
 };
 
