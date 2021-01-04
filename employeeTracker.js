@@ -338,7 +338,7 @@ function removeRole() {
                 let query = "DELETE FROM role WHERE ?";
                 connection.query(query, { title: answer.deleteRole }, function(err, res) {
                     if (err) throw err;
-                    console.log(res.affectedRows + "row successfully deleted!");
+                    console.log(res.affectedRows + "role successfully deleted!\n");
                     runEmployeeTracker();
                 });
             });
@@ -391,6 +391,37 @@ function addDepartment() {
         });
 };
 
+// Remove selected department from the database
 function removeDepartment() {
 
+    let query = "SELECT * FROM department";
+    connection.query(query, (err, res) => {
+        if (err) throw err;
+
+        // Prompted the user question of which department they would like to delete.
+        inquirer
+            .prompt([
+                {
+                    name: "deleteDept",
+                    type: "list",
+                    message: "Which department would you like to remove?",
+                    choices: function() {
+                        let deptArray = [];
+                        for (let i=0; i < res.length; i++) {
+                            deptArray.push(res[i].name);
+                        };
+                        return deptArray;
+                    },
+                },
+            ]).then((answer) => {
+                
+                // Delete selected data from department
+                let query = "DELETE FROM department WHERE ?";
+                connection.query(query, { name: answer.deleteDept }, function(err, res) {
+                    if (err) throw err;
+                    console.log(res.affectedRows + "department successfully deleted!\n");
+                    runEmployeeTracker();
+                });
+            });
+    });
 };
