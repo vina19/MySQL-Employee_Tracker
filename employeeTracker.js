@@ -190,10 +190,9 @@ function viewEmployeesByManager() {
 // Adding new employee to the database.
 function addEmployee() {
 
-    let query = `SELECT employee.id, role.title AS title, CONCAT(m.first_name, ' ', m.last_name) AS employee_name 
+    let query = `SELECT employee.id, role.title AS title, CONCAT(employee.first_name, ' ', employee.last_name) AS employee_name 
                 FROM employee 
                 INNER JOIN role ON role.id = employee.role_id 
-                LEFT JOIN employee m ON employee.manager_id = m.id 
                 ORDER BY employee.id`;
 
     connection.query(query, (err, res) => {
@@ -234,6 +233,7 @@ function addEmployee() {
 
                     // Array to hold manager list to be display as choices list.
                     let managerArray = [];
+                    managerArray.push("None");
                     for (let i=0; i < res.length; i++) {
                         managerArray.push(res[i].employee_name);
                     };
@@ -300,16 +300,12 @@ function updateEmployeeRole() {
             ]).then((answer) => {
 
                 // Getting the role id number to be set to the new role id number for the employee.
-                connection.query(`SELECT id 
-                                FROM role 
-                                WHERE title = "${answer.updateRole}"`, (err, res) => {
+                connection.query(`SELECT id FROM role WHERE title = "${answer.updateRole}"`, (err, res) => {
                     if (err) throw err;
                     let roleID = res[0].id;
                     
                     // Getting the id number of the employee updated.
-                    connection.query(`SELECT id 
-                                    FROM employee 
-                                    WHERE CONCAT(employee.first_name, ' ', employee.last_name) = "${answer.updateEmployeeRole}"`, (err, res) => {
+                    connection.query(`SELECT id FROM employee WHERE CONCAT(employee.first_name, ' ', employee.last_name) = "${answer.updateEmployeeRole}"`, (err, res) => {
                         if (err) throw err;
                         let employeeID = res[0].id;
 
