@@ -52,7 +52,7 @@ function runEmployeeTracker() {
                 'Add Role',
                 'Remove Role',
                 'View All Departments',
-                'View Department Budget',
+                'View Department Total Salary',
                 'Add Department',
                 'Remove Department',
                 'Exit'
@@ -94,8 +94,8 @@ function runEmployeeTracker() {
                 case 'View All Departments':
                     viewDepartments();
                     break;
-                case 'View Total Utilized Department Budget':
-                    viewDepartmentBudget();
+                case 'View Department Total Salary':
+                    viewDepartmentTotalSalary();
                     break;
                 case 'Add Department':
                     addDepartment();
@@ -239,8 +239,44 @@ function removeEmployee() {
 
 };
 
+// Update the selected employee role
 function updateEmployeeRole() {
 
+    let query = "SELECT employee.id, role.title AS title, CONCAT(m.first_name, ' ', m.last_name) AS employee_name FROM employee INNER JOIN role ON role.id = employee.role_id LEFT JOIN employee m ON employee.manager_id = m.id ORDER BY employee.id";
+    connection.query(query, (err, res) => {
+        if (err) throw err;
+
+        // Prompted the user about the question of which role they want to update
+        inquirer
+            .prompt([
+                {
+                    name: "updateEmployeeRole",
+                    type: "list",
+                    message: "Which employees do you want their role to be updated?",
+                    choices: function() {
+                        let empArray = [];
+                        for (let i=0; i < res.length; i++) {
+                            empArray.push(res[i].employee_name);
+                        };
+                        return empArray;
+                    },
+                },
+                {
+                    name: "updateRole",
+                    type: "list",
+                    message: "Which role do you want to set as a new role for the selected employee?",
+                    choices: function() {
+                        let roleArray = [];
+                        for (let i=0; i < res.length; i++) {
+                            roleArray.push(res[i].title);
+                        };
+                        return roleArray;
+                    },
+                },
+            ]).then((answer) => {
+
+            });
+    });
 };
 
 function updateEmployeeManager() {
@@ -365,7 +401,7 @@ function viewDepartments() {
 
 };
 
-function viewDepartmentBudget() {
+function viewDepartmentTotalSalary() {
 
 };
 
