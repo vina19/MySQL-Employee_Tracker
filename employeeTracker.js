@@ -2,7 +2,7 @@
 const inquirer = require("inquirer");
 const mysql = require("mysql");
 const logo = require("asciiart-logo");
-const { allowedNodeEnvironmentFlags } = require("process");
+const asciitable = require("asciitable");
 
 // Create the connection information for the sql database
 const connection = mysql.createConnection({
@@ -12,7 +12,7 @@ const connection = mysql.createConnection({
     // Your username, if not root
     user: "root",
     // Your password
-    password: "",
+    password: "flower",
     database: "employees_db"
 });
 
@@ -113,12 +113,20 @@ function runEmployeeTracker() {
 // Display all the employees
 function viewEmployees() {
 
+    // Grabbing the needed data from the database to display employees info
     let query = "SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary, CONCAT(m.first_name, ' ', m.last_name) AS manager FROM employee INNER JOIN role ON role.id = employee.role_id INNER JOIN department ON department.id = role.department_id LEFT JOIN employee m ON employee.manager_id = m.id ORDER BY employee.id";
     connection.query(query, (err, res) => {
         if (err) return err;
 
-        // Using console.table() to display the data in table format.
-        console.table(res);
+        // Using asciitable to display the data in table format.
+        let options = {
+            skinny: true,
+            intersectionCharacter: "x",
+        };
+
+        let table = asciitable(options, res);
+
+        console.log(table);
 
         // run the main main again.
         runEmployeeTracker();
@@ -126,12 +134,12 @@ function viewEmployees() {
 };
 
 // Display all the employees by departments
-// by asking the user which department they want to choose and then based on the user answer
-// display the employee info from the chosen department.
 function viewEmployeesByDepartment() {
 
+    // Prompting the user to which department they want to choose.
     inquirer
-        .prompt({
+        .prompt([
+        {
             name: "department",
             type: "list",
             message: "Please choose which department to display: ",
@@ -141,7 +149,10 @@ function viewEmployeesByDepartment() {
                 "Finance",
                 "Legal"
             ]
-        }).then((answer) => {
+        }
+        ]).then((answer) => {
+
+            // Grabbing the needed data about the employees info based of the chosen department
             let query = `SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary, CONCAT(m.first_name, ' ', m.last_name) AS manager FROM employee INNER JOIN role ON role.id = employee.role_id INNER JOIN department ON department.id = role.department_id LEFT JOIN employee m ON employee.manager_id = m.id WHERE department.name = '${answer.department}' ORDER BY employee.id`;
             connection.query(query, (err, res) => {
                 if (err) return err;
