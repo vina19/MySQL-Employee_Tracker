@@ -245,8 +245,22 @@ function updateEmployeeManager() {
 
 };
 
+// Display all the roles to the user
 function viewRoles() {
 
+    let query = "SELECT title FROM role";
+    connection.query(query, (err, res) => {
+        if (err) throw err;
+
+        console.log("------ROLE LIST------ \n");
+        let options = {
+            skinny: true,
+            intersectionCharacter: "x",
+        };
+        let table = asciitable(options, res);
+        console.log(table);
+        runEmployeeTracker();
+    });
 };
 
 function addRole() {
