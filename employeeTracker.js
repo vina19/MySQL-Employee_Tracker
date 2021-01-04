@@ -115,7 +115,13 @@ function runEmployeeTracker() {
 function viewEmployees() {
 
     // Grabbing the needed data from the database to display employees info
-    let query = "SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary, CONCAT(m.first_name, ' ', m.last_name) AS manager FROM employee INNER JOIN role ON role.id = employee.role_id INNER JOIN department ON department.id = role.department_id LEFT JOIN employee m ON employee.manager_id = m.id ORDER BY employee.id";
+    let query = `SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary, CONCAT(m.first_name, ' ', m.last_name) AS manager 
+                FROM employee 
+                INNER JOIN role ON role.id = employee.role_id 
+                INNER JOIN department ON department.id = role.department_id 
+                LEFT JOIN employee m ON employee.manager_id = m.id 
+                ORDER BY employee.id`;
+
     connection.query(query, (err, res) => {
         if (err) return err;
         console.log("\n ------ALL EMPLOYEES------ \n");
@@ -155,7 +161,14 @@ function viewEmployeesByDepartment() {
         ]).then((answer) => {
 
             // Grabbing the needed data about the employees info based of the chosen department
-            let query = `SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary, CONCAT(m.first_name, ' ', m.last_name) AS manager FROM employee INNER JOIN role ON role.id = employee.role_id INNER JOIN department ON department.id = role.department_id LEFT JOIN employee m ON employee.manager_id = m.id WHERE department.name = '${answer.department}' ORDER BY employee.id`;
+            let query = `SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary, CONCAT(m.first_name, ' ', m.last_name) AS manager 
+                        FROM employee 
+                        INNER JOIN role ON role.id = employee.role_id 
+                        INNER JOIN department ON department.id = role.department_id 
+                        LEFT JOIN employee m ON employee.manager_id = m.id 
+                        WHERE department.name = '${answer.department}' 
+                        ORDER BY employee.id`;
+
             connection.query(query, (err, res) => {
                 if (err) return err;
                 console.log("\n ------EMPLOYEES BY DEPARTMENT------ \n");
@@ -177,7 +190,12 @@ function viewEmployeesByManager() {
 // Adding new employee to the database.
 function addEmployee() {
 
-    let query = "SELECT employee.id, role.title AS title, CONCAT(m.first_name, ' ', m.last_name) AS employee_name FROM employee INNER JOIN role ON role.id = employee.role_id LEFT JOIN employee m ON employee.manager_id = m.id ORDER BY employee.id";
+    let query = `SELECT employee.id, role.title AS title, CONCAT(m.first_name, ' ', m.last_name) AS employee_name 
+                FROM employee 
+                INNER JOIN role ON role.id = employee.role_id 
+                LEFT JOIN employee m ON employee.manager_id = m.id 
+                ORDER BY employee.id`;
+
     connection.query(query, (err, res) => {
         if (err) throw err;
 
@@ -225,7 +243,9 @@ function addEmployee() {
         ]).then((answer) => {
 
             // Insert the needed data to add a new employee to the database
-            let query = `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ("${answer.firstName}", "${answer.lastName}", (SELECT id FROM role WHERE title = "${answer.role}"), (SELECT id FROM employee WHERE CONCAT(first_name, " ", last_name) = "${answer.manager}"))`;
+            let query = `INSERT INTO employee (first_name, last_name, role_id, manager_id) 
+                        VALUES ("${answer.firstName}", "${answer.lastName}", (SELECT id FROM role WHERE title = "${answer.role}"), (SELECT id FROM employee WHERE CONCAT(first_name, " ", last_name) = "${answer.manager}"))`;
+            
             connection.query(query, (err, res) => {
                 if (err) throw err;
                 console.log(res.affectedRows + " new employee inserted! \n");
@@ -243,50 +263,57 @@ function removeEmployee() {
 function updateEmployeeRole() {
 
     let query = `SELECT employee.id, role.title AS title, CONCAT(employee.first_name, ' ', employee.last_name) AS employee_name 
-            FROM employee 
-            INNER JOIN role ON role.id = employee.role_id 
-            ORDER BY employee.id`;
+                FROM employee 
+                INNER JOIN role ON role.id = employee.role_id 
+                ORDER BY employee.id`;
+
     connection.query(query, (err, res) => {
         if (err) throw err;
 
         // Prompted the user about the question of which role they want to update
         inquirer
             .prompt([
-                {
-                    name: "updateEmployeeRole",
-                    type: "list",
-                    message: "Which employees do you want their role to be updated?",
-                    choices: function() {
-                        let empArray = [];
-                        for (let i=0; i < res.length; i++) {
-                            console.log(res[i].employee_name)
-                            empArray.push(res[i].employee_name);
-                        };
-                        return empArray;
-                    },
+            {
+                name: "updateEmployeeRole",
+                type: "list",
+                message: "Which employees do you want their role to be updated?",
+                choices: function() {
+                    let empArray = [];
+                    for (let i=0; i < res.length; i++) {
+                        empArray.push(res[i].employee_name);
+                    };
+                    return empArray;
                 },
-                {
-                    name: "updateRole",
-                    type: "list",
-                    message: "Which role do you want to set as a new role for the selected employee?",
-                    choices: function() {
-                        let roleArray = [];
-                        for (let i=0; i < res.length; i++) {
-                            roleArray.push(res[i].title);
-                        };
-                        return roleArray;
-                    },
+            },
+            {
+                name: "updateRole",
+                type: "list",
+                message: "Which role do you want to set as a new role for the selected employee?",
+                choices: function() {
+                    let roleArray = [];
+                    for (let i=0; i < res.length; i++) {
+                        roleArray.push(res[i].title);
+                    };
+                    return roleArray;
                 },
+            },
             ]).then((answer) => {
 
-                connection.query(`SELECT id FROM role WHERE title = "${answer.updateRole}"`, (err, res) => {
+                // Getting the role id number to be set to the new role id number for the employee.
+                connection.query(`SELECT id 
+                                FROM role 
+                                WHERE title = "${answer.updateRole}"`, (err, res) => {
                     if (err) throw err;
                     let roleID = res[0].id;
-
-                    connection.query(`SELECT id FROM employee WHERE CONCAT(employee.first_name, ' ', employee.last_name) = "${answer.updateEmployeeRole}"`, (err, res) => {
+                    
+                    // Getting the id number of the employee updated.
+                    connection.query(`SELECT id 
+                                    FROM employee 
+                                    WHERE CONCAT(employee.first_name, ' ', employee.last_name) = "${answer.updateEmployeeRole}"`, (err, res) => {
                         if (err) throw err;
                         let employeeID = res[0].id;
 
+                        // Updating the employee role with role id number.
                         let query = `UPDATE employee SET role_id = ${roleID} WHERE id = ${employeeID}`;
                         connection.query(query, (err, res) => {
                             if (err) throw err;
@@ -357,8 +384,9 @@ function addRole() {
             ]).then((answer) => {
 
                 // Inserting the needed data for role to the database
-                let query = `INSERT INTO role (title, salary, department_id) VALUES ("${answer.roleTitle}", "${answer.salary}", (SELECT id FROM department WHERE name = "${answer.department}"))`;
-                connection.query(query, function(err, res) {
+                let query = `INSERT INTO role (title, salary, department_id) 
+                            VALUES ("${answer.roleTitle}", "${answer.salary}", (SELECT id FROM department WHERE name = "${answer.department}"))`;
+                connection.query(query, (err, res) => {
                     if (err) throw err;
                     console.log(res.affectedRows + " new role inserted! \n");
                     runEmployeeTracker();
@@ -377,23 +405,23 @@ function removeRole() {
         // Prompted the user question of which role they would like to delete.
         inquirer
             .prompt([
-                {
-                    name: "deleteRole",
-                    type: "list",
-                    message: "Which role would you like to remove?",
-                    choices: function() {
-                        let roleArray = [];
-                        for (let i=0; i < res.length; i++) {
-                            roleArray.push(res[i].title);
-                        };
-                        return roleArray;
-                    },
+            {
+                name: "deleteRole",
+                type: "list",
+                message: "Which role would you like to remove?",
+                choices: function() {
+                    let roleArray = [];
+                    for (let i=0; i < res.length; i++) {
+                        roleArray.push(res[i].title);
+                    };
+                    return roleArray;
                 },
+            },
             ]).then((answer) => {
                 
                 // Delete selected data from role
                 let query = "DELETE FROM role WHERE ?";
-                connection.query(query, { title: answer.deleteRole }, function(err, res) {
+                connection.query(query, { title: answer.deleteRole }, (err, res) => {
                     if (err) throw err;
                     console.log(res.affectedRows + "role successfully deleted!\n");
                     runEmployeeTracker();
@@ -440,7 +468,7 @@ function addDepartment() {
 
             // Inserting the new department to database
             let query = `INSERT INTO department (name) VALUES ("${answer.department}")`;
-            connection.query(query, function(err, res) {
+            connection.query(query, (err, res) => {
                 if (err) throw err;
                 console.log(res.affectedRows + " new department inserted!\n");
                 runEmployeeTracker();
@@ -458,23 +486,23 @@ function removeDepartment() {
         // Prompted the user question of which department they would like to delete.
         inquirer
             .prompt([
-                {
-                    name: "deleteDept",
-                    type: "list",
-                    message: "Which department would you like to remove?",
-                    choices: function() {
-                        let deptArray = [];
-                        for (let i=0; i < res.length; i++) {
-                            deptArray.push(res[i].name);
-                        };
-                        return deptArray;
-                    },
+            {
+                name: "deleteDept",
+                type: "list",
+                message: "Which department would you like to remove?",
+                choices: function() {
+                    let deptArray = [];
+                    for (let i=0; i < res.length; i++) {
+                        deptArray.push(res[i].name);
+                    };
+                    return deptArray;
                 },
+            },
             ]).then((answer) => {
                 
                 // Delete selected data from department
                 let query = "DELETE FROM department WHERE ?";
-                connection.query(query, { name: answer.deleteDept }, function(err, res) {
+                connection.query(query, { name: answer.deleteDept }, (err, res) => {
                     if (err) throw err;
                     console.log(res.affectedRows + "department successfully deleted!\n");
                     runEmployeeTracker();
