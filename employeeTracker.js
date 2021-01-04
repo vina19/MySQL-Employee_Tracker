@@ -226,7 +226,7 @@ function addEmployee() {
 
             // Insert the needed data to add a new employee to the database
             let query = `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ("${answer.firstName}", "${answer.lastName}", (SELECT id FROM role WHERE title = "${answer.role}"), (SELECT id FROM employee WHERE CONCAT(first_name, " ", last_name) = "${answer.manager}"))`;
-            connection.query(query, function(err, res) {
+            connection.query(query, (err, res) => {
                 if (err) throw err;
                 console.log(res.affectedRows + " new employee inserted! \n");
                 runEmployeeTracker();
@@ -242,7 +242,10 @@ function removeEmployee() {
 // Update the selected employee role
 function updateEmployeeRole() {
 
-    let query = "SELECT employee.id, role.title AS title, CONCAT(m.first_name, ' ', m.last_name) AS employee_name FROM employee INNER JOIN role ON role.id = employee.role_id LEFT JOIN employee m ON employee.manager_id = m.id ORDER BY employee.id";
+    let query = `SELECT employee.id, role.title AS title, CONCAT(employee.first_name, ' ', employee.last_name) AS employee_name 
+            FROM employee 
+            INNER JOIN role ON role.id = employee.role_id 
+            ORDER BY employee.id`;
     connection.query(query, (err, res) => {
         if (err) throw err;
 
@@ -256,6 +259,7 @@ function updateEmployeeRole() {
                     choices: function() {
                         let empArray = [];
                         for (let i=0; i < res.length; i++) {
+                            console.log(res[i].employee_name)
                             empArray.push(res[i].employee_name);
                         };
                         return empArray;
@@ -275,6 +279,22 @@ function updateEmployeeRole() {
                 },
             ]).then((answer) => {
 
+                connection.query(`SELECT id FROM role WHERE title = "${answer.updateRole}"`, (err, res) => {
+                    if (err) throw err;
+                    let roleID = res[0].id;
+
+                    connection.query(`SELECT id FROM employee WHERE CONCAT(employee.first_name, ' ', employee.last_name) = "${answer.updateEmployeeRole}"`, (err, res) => {
+                        if (err) throw err;
+                        let employeeID = res[0].id;
+
+                        let query = `UPDATE employee SET role_id = ${roleID} WHERE id = ${employeeID}`;
+                        connection.query(query, (err, res) => {
+                            if (err) throw err;
+                            console.log(res.affectedRows + " employee's role updated!\n");
+                            runEmployeeTracker();
+                        });
+                    });
+                });  
             });
     });
 };
