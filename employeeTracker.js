@@ -212,24 +212,17 @@ function addEmployee() {
                     for (let i=0; i < res.length; i++) {
                         managerArray.push(res[i].employee_name);
                     };
-                    return "None" + managerArray;
+                    return managerArray;
                 }
             },
         ]).then((answer) => {
 
-            connection.query("INSERT INTO employee SET ?",
-                {
-                    first_name: answer.firstName,
-                    last_name: answer.lastName,
-                    role_id: answer.role,
-                    manager_id: answer.manager,
-                },
-                function(err) {
-                    if (err) throw err;
-                    console.log(res.affectedRows + " new employee inserted!\n");
-                    runEmployeeTracker();
-                });
-                
+            // Insert the needed data to add a new employee to the database
+            let query = `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES ("${answer.firstName}", "${answer.lastName}", (SELECT id FROM role WHERE title = "${answer.role}"), (SELECT id FROM employee WHERE CONCAT(first_name, " ", last_name) = "${answer.manager}"))`;
+            connection.query(query, function(err, res) {
+                if (err) throw err;
+                console.log(res.affectedRows + " new employee inserted! \n");
+                runEmployeeTracker();
             });
         });    
 };
@@ -300,7 +293,7 @@ function addRole() {
                 let query = `INSERT INTO role (title, salary, department_id) VALUES ("${answer.roleTitle}", "${answer.salary}", (SELECT id FROM department WHERE name = "${answer.department}"))`;
                 connection.query(query, function(err, res) {
                     if (err) throw err;
-                    console.log(res.affectedRows + " role inserted! \n");
+                    console.log(res.affectedRows + " new role inserted! \n");
                     runEmployeeTracker();
                 });
             });
