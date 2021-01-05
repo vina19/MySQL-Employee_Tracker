@@ -43,16 +43,13 @@ function runEmployeeTracker() {
             choices: [
                 'View All Employees',
                 'View All Employees By Department',
-                'View All Employees By Manager',
                 'Add Employee',
                 'Remove Employee',
                 'Update Employee Role',
-                'Update Employee Manager',
                 'View All Roles',
                 'Add Role',
                 'Remove Role',
                 'View All Departments',
-                'View Department Total Salary',
                 'Add Department',
                 'Remove Department',
                 'Exit'
@@ -67,9 +64,6 @@ function runEmployeeTracker() {
                 case 'View All Employees By Department':
                     viewEmployeesByDepartment();
                     break;
-                case 'View All Employees By Manager':
-                    viewEmployeesByManager();
-                    break;
                 case 'Add Employee':
                     addEmployee();
                     break;
@@ -78,9 +72,6 @@ function runEmployeeTracker() {
                     break;
                 case 'Update Employee Role':
                     updateEmployeeRole();
-                    break;
-                case 'Update Employee Manager':
-                    updateEmployeeManager();
                     break;
                 case 'View All Roles':
                     viewRoles();
@@ -93,9 +84,6 @@ function runEmployeeTracker() {
                     break;
                 case 'View All Departments':
                     viewDepartments();
-                    break;
-                case 'View Department Total Salary':
-                    viewDepartmentTotalSalary();
                     break;
                 case 'Add Department':
                     addDepartment();
@@ -181,10 +169,6 @@ function viewEmployeesByDepartment() {
                 runEmployeeTracker();
             });
         });
-};
-
-function viewEmployeesByManager() {
-
 };
 
 // Adding new employee to the database.
@@ -283,7 +267,7 @@ function addEmployee() {
                                 role_id: roleID,
                                 manager_id: managerID
                             },
-                            (err) => {
+                            (err, res) => {
                                 if (err) throw err;
                                 console.log("New employee was createad successfully!\n");
                                 runEmployeeTracker();
@@ -331,7 +315,7 @@ function removeEmployee() {
                     let query = "DELETE FROM employee WHERE ?";
                     connection.query(query, { id: empID }, (err, res) => {
                         if (err) throw err;
-                        console.log(`\n Employee '${answer.deleteEmployee}' was successfully deleted!\n`);
+                        console.log(`Employee '${answer.deleteEmployee}' was successfully deleted!\n`);
                         runEmployeeTracker();
                     });
                 });         
@@ -393,17 +377,13 @@ function updateEmployeeRole() {
                         let query = `UPDATE employee SET role_id = ${roleID} WHERE id = ${employeeID}`;
                         connection.query(query, (err, res) => {
                             if (err) throw err;
-                            console.log(res.affectedRows + " employee's role updated!\n");
+                            console.log(`Employee "${answer.updateEmployeeRole}"'s role updated!\n`);
                             runEmployeeTracker();
                         });
                     });
                 });  
             });
     });
-};
-
-function updateEmployeeManager() {
-
 };
 
 // Display all the roles to the user
@@ -464,7 +444,7 @@ function addRole() {
                             VALUES ("${answer.roleTitle}", "${answer.salary}", (SELECT id FROM department WHERE name = "${answer.department}"))`;
                 connection.query(query, (err, res) => {
                     if (err) throw err;
-                    console.log(res.affectedRows + " new role inserted! \n");
+                    console.log(`New role title: '${answer.roleTitle}' was successfully inserted!\n`);
                     runEmployeeTracker();
                 });
             });
@@ -499,7 +479,7 @@ function removeRole() {
                 let query = "DELETE FROM role WHERE ?";
                 connection.query(query, { title: answer.deleteRole }, (err, res) => {
                     if (err) throw err;
-                    console.log(res.affectedRows + "role successfully deleted!\n");
+                    console.log(`Role '${answer.deleteRole}' successfully deleted!\n`);
                     runEmployeeTracker();
                 });
             });
@@ -522,10 +502,6 @@ function viewDepartments() {
         console.log(table);
         runEmployeeTracker();
     });
-
-};
-
-function viewDepartmentTotalSalary() {
 
 };
 
